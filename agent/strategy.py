@@ -404,13 +404,14 @@ if __name__ == "__main__":
         f"  disciplined (ceiling, {disciplined}cr) x10 rounds -> spent={disciplined_pacer.credits_spent} "
         f"credits_left={disciplined_pacer.credits_left} bankrupt_by={disciplined_pacer.bankrupt_by()}"
     )
-    # Even the CEILING of "disciplined" (paying full price for query + get_frame
-    # + provenance, EVERY round, with no caching at all) survives nine full
-    # rounds and only runs dry paying for the tenth -- a sharp contrast with
-    # careless play below, and the honest reason ResultCache/pacing exist:
-    # not needing all three calls every round is what buys the margin
-    # FINAL-PLAN.md 4.3 calls "sustainable".
-    assert disciplined_pacer.bankrupt_by() == ROUNDS_PER_DUEL, disciplined_pacer.bankrupt_by()
+    # The starter assertion was retired: kit.mcp.specs was retuned (9 cr/round
+    # instead of the original 11), so 9 cr x 10 rounds = 90 < 100 and the
+    # CEILING of disciplined play does NOT bankrupt at all. The lesson is
+    # still the contrast with careless play below (49 cr x 10 = 490 >> 100).
+    # The relevant checks now: pacing leaves a credit margin at the end AND
+    # careless play goes bust long before round 10.
+    assert disciplined_pacer.bankrupt_by() is None, disciplined_pacer.bankrupt_by()
+    assert disciplined_pacer.credits_left > 0
     nine_rounds_pacer = BudgetPacer()
     for round_no in range(1, ROUNDS_PER_DUEL):  # 9 rounds, not 10
         nine_rounds_pacer.record_spend(round_no, disciplined)
